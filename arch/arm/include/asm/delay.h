@@ -9,7 +9,7 @@
 #include <asm/memory.h>
 #include <asm/param.h>	/* HZ */
 
-#define MAX_UDELAY_MS	2
+#define MAX_UDELAY_MS	10000
 #define UDELAY_MULT	((UL(2199023) * HZ) >> 11)
 #define UDELAY_SHIFT	30
 
