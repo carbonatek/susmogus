@@ -7,6 +7,7 @@
 #define ENABLE_DSI_INTERRUPT 1
 
 #include <linux/delay.h>
+#include <linux/module.h>
 #include <disp_drv_log.h>
 #include <linux/time.h>
 #include <linux/string.h>
