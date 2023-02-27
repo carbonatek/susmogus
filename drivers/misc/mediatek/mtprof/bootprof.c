@@ -6,8 +6,6 @@
 #include <linux/module.h>
 #include <linux/moduleparam.h>
 #include <asm/uaccess.h>
-#include <linux/printk.h> // mt_disable_uart shenanigans
-
 
 #define SEQ_printf(m, x...)	    \
  do {			    \
@@ -113,7 +111,6 @@ void log_boot(char *str)
 extern void mt_disable_uart(void);
 static void bootup_finish(void)
 {
-	int mt_need_uart_console = 0;
 	mt_disable_uart();
 }
 #else

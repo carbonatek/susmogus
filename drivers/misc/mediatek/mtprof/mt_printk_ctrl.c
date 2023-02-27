@@ -88,26 +88,25 @@ static int mt_printk_ctrl_show(struct seq_file *m, void *v)
 	return 0;
 }
 
-static ssize_t mt_printk_ctrl_write(struct file *filp, const char *ubuf, ssize_t cnt, loff_t *data)
+static ssize_t mt_printk_ctrl_write(struct file *filp, const char *ubuf, size_t cnt, loff_t *data)
 {
 	char buf[64];
 	int val;
 	int ret;
 	if (cnt >= sizeof(buf))
 		return -EINVAL;
-
+	
 	if (copy_from_user(&buf, ubuf, cnt))
 		return -EFAULT;
-
+	
 	buf[cnt] = 0;
 
 	ret = strict_strtoul(buf, 10, (unsigned long *)&val);
 	if (val == 0) {
+		mt_disable_uart();
+	} else if (val == 1) {
 		mt_need_uart_console = 1;
 		mt_enable_uart();
-	} else if (val == 1) {
-		mt_need_uart_console = 0;
-		mt_disable_uart();
 		pr_err("need uart log\n");
 	}
 	if (ret < 0)
