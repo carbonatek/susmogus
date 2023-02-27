@@ -574,7 +574,7 @@ int ipanic(struct notifier_block *this, unsigned long event, void *ptr)
 	return NOTIFY_DONE;
 }
 
-void ipanic_recursive_ke(struct pt_regs *regs, struct pt_regs *excp_regs, int cpu)
+/*void ipanic_recursive_ke(struct pt_regs *regs, struct pt_regs *excp_regs, int cpu)
 {
 	int errno;
 	struct kmsg_dumper dumper;
@@ -598,6 +598,52 @@ void ipanic_recursive_ke(struct pt_regs *regs, struct pt_regs *excp_regs, int cp
 	errno = ipanic_header_to_sd(0);
 	if (!IS_ERR(ERR_PTR(errno)))
 		mrdump_mini_ipanic_done();
+	if (ipanic_dt_active(IPANIC_DT_RAM_DUMP)) {
+		aee_nested_printf("RAMDUMP.\n");
+		__mrdump_create_oops_dump(AEE_REBOOT_MODE_NESTED_EXCEPTION, excp_regs,
+					  "Nested Panic");
+	}
+	bust_spinlocks(0);
+}*/
+void ipanic_recursive_ke(struct pt_regs *regs, struct pt_regs *excp_regs, int cpu)
+{
+	struct kmsg_dumper dumper;
+	struct thread_info *thread;
+	struct task_struct *curr = NULL;
+	aee_nested_printf("minidump\n");
+	if (!virt_addr_valid(excp_regs->ARM_sp) && !virt_addr_valid(excp_regs->ARM_fp)) {
+#if defined(CONFIG_KGDB_KDB)
+		curr = curr_task(cpu);
+#endif
+		if (virt_addr_valid(curr)) {
+			thread = (struct thread_info *)curr->stack;
+			if (virt_addr_valid(thread) && (thread->task == curr)) {
+				excp_regs->ARM_r4 = thread->cpu_context.r4;
+				excp_regs->ARM_r5 = thread->cpu_context.r5;
+				excp_regs->ARM_r6 = thread->cpu_context.r6;
+				excp_regs->ARM_r7 = thread->cpu_context.r7;
+				excp_regs->ARM_r8 = thread->cpu_context.r8;
+				excp_regs->ARM_r9 = thread->cpu_context.r9;
+				excp_regs->ARM_r10 = thread->cpu_context.sl;
+				excp_regs->ARM_fp = thread->cpu_context.fp;
+				excp_regs->ARM_sp = thread->cpu_context.sp;
+				excp_regs->ARM_pc = thread->cpu_context.pc;
+				excp_regs->ARM_cpsr = thread->cpu_context.extra[0];
+			} else {
+				excp_regs->ARM_sp = (__u32) thread;
+			}
+			/* use this trick to store task_struct */
+			excp_regs->ARM_lr = (__u32) curr;
+		}
+		/* another trick */
+		excp_regs->ARM_ip = regs->ARM_sp;
+	}
+	bust_spinlocks(1);
+	ipanic_mrdump_mini(AEE_REBOOT_MODE_NESTED_EXCEPTION, excp_regs, "Nested Panic");
+	ipanic_data_to_sd(IPANIC_DT_CURRENT_TSK, 0);
+	ipanic_kick_wdt();
+	ipanic_klog_region(&dumper);
+	ipanic_data_to_sd(IPANIC_DT_KERNEL_LOG, &dumper);
 	if (ipanic_dt_active(IPANIC_DT_RAM_DUMP)) {
 		aee_nested_printf("RAMDUMP.\n");
 		__mrdump_create_oops_dump(AEE_REBOOT_MODE_NESTED_EXCEPTION, excp_regs,
@@ -666,7 +712,7 @@ static void ipanic_oops_done(struct aee_oops *oops, int erase)
 		ipanic_erase();
 }
 
-static int ipanic_die(struct notifier_block *self, unsigned long cmd, void *ptr)
+/*static int ipanic_die(struct notifier_block *self, unsigned long cmd, void *ptr)
 {
 	struct kmsg_dumper dumper;
 	struct die_args *dargs = (struct die_args *)ptr;
@@ -676,12 +722,25 @@ static int ipanic_die(struct notifier_block *self, unsigned long cmd, void *ptr)
 	mrdump_mini_ke_cpu_regs(dargs->regs);
 	flush_cache_all();
 
-	/* No return if mrdump is enable */
+	* No return if mrdump is enable *
 	aee_kdump_reboot(AEE_REBOOT_MODE_KERNEL_OOPS, "Kernel Oops");
 
 	smp_send_stop();
 
 	ipanic_mrdump_mini(AEE_REBOOT_MODE_KERNEL_PANIC, "kernel Oops");
+	ipanic_klog_region(&dumper);
+	ipanic_data_to_sd(IPANIC_DT_KERNEL_LOG, &dumper);
+	ipanic_data_to_sd(IPANIC_DT_CURRENT_TSK, dargs->regs);
+	return NOTIFY_DONE;
+}*/
+
+static int ipanic_die(struct notifier_block *self, unsigned long cmd, void *ptr)
+{
+	struct kmsg_dumper dumper;
+	struct die_args *dargs = (struct die_args *)ptr;
+	aee_disable_api();
+	smp_send_stop();
+	ipanic_mrdump_mini(AEE_REBOOT_MODE_KERNEL_PANIC, dargs->regs, "kernel Oops");
 	ipanic_klog_region(&dumper);
 	ipanic_data_to_sd(IPANIC_DT_KERNEL_LOG, &dumper);
 	ipanic_data_to_sd(IPANIC_DT_CURRENT_TSK, dargs->regs);
