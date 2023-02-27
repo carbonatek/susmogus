@@ -88,7 +88,7 @@ static int mt_printk_ctrl_show(struct seq_file *m, void *v)
 	return 0;
 }
 
-static ssize_t mt_printk_ctrl_write(struct file *filp, const char *ubuf, size_t cnt, loff_t *data)
+static ssize_t mt_printk_ctrl_write(struct file *filp, const char *ubuf, ssize_t cnt, loff_t *data)
 {
 	char buf[64];
 	int val;
