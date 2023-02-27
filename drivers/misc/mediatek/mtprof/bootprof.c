@@ -117,7 +117,7 @@ static void bootup_finish(void)
 	// I am assuming that mt_need_uart_console is set to 0, otherwise, it might
 	// bite me in the ass.
 	// mt_disable_uart();
-	mt_disable_uart = 1;
+	mt_disable_uart;
 }
 #else
 static void bootup_finish(void)
