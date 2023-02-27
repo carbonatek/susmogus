@@ -367,14 +367,14 @@ int ipanic_data_to_sd(int dt, void *data)
 	return errno;
 }
 
-void ipanic_mrdump_mini(AEE_REBOOT_MODE reboot_mode, const char *msg, ...)
+/* void ipanic_mrdump_mini(AEE_REBOOT_MODE reboot_mode, const char *msg, ...)
 {
 	int ret;
 	struct ipanic_header *ipanic_hdr;
 	loff_t sd_offset;
 	struct ipanic_data_header *dheader;
 	va_list ap;
-	/* write sd is unreliable, so gen mrdump header first */
+	* write sd is unreliable, so gen mrdump header first *
 	if (ipanic_data_is_valid(IPANIC_DT_MINI_RDUMP))
 		return;
 
@@ -382,7 +382,25 @@ void ipanic_mrdump_mini(AEE_REBOOT_MODE reboot_mode, const char *msg, ...)
 	ipanic_hdr = ipanic_header();
 	sd_offset = ipanic_hdr->data_hdr[IPANIC_DT_MINI_RDUMP].offset;
 	dheader = &ipanic_hdr->data_hdr[IPANIC_DT_MINI_RDUMP];
-	ret = mrdump_mini_create_oops_dump(reboot_mode, ipanic_mem_write, sd_offset, msg, ap);
+	ret = mrdump_mini_create_oops_dump(reboot_mode, regs, sd_offset, msg, ap);
+	va_end(ap);
+	if (!IS_ERR(ERR_PTR(ret))) {
+		dheader->used = ret;
+		ipanic_header_to_sd(dheader);
+	}
+} */
+
+void ipanic_mrdump_mini(AEE_REBOOT_MODE reboot_mode, struct pt_regs *regs, const char *msg, ...)
+{
+	int ret;
+	struct ipanic_header *ipanic_hdr = ipanic_header();
+	loff_t sd_offset = ipanic_hdr->data_hdr[IPANIC_DT_MINI_RDUMP].offset;
+	struct ipanic_data_header *dheader = &ipanic_hdr->data_hdr[IPANIC_DT_MINI_RDUMP];
+	va_list ap;
+	if (ipanic_data_is_valid(IPANIC_DT_MINI_RDUMP))
+		return;
+	va_start(ap, msg);
+	ret = mrdump_mini_create_oops_dump(reboot_mode, regs, sd_offset, msg, ap);
 	va_end(ap);
 	if (!IS_ERR(ERR_PTR(ret))) {
 		dheader->used = ret;
