@@ -103,10 +103,10 @@ static ssize_t mt_printk_ctrl_write(struct file *filp, const char *ubuf, ssize_t
 
 	ret = strict_strtoul(buf, 10, (unsigned long *)&val);
 	if (val == 0) {
-		mt_disable_uart();
+		printk_disable_uart = 1;
 	} else if (val == 1) {
 		mt_need_uart_console = 1;
-		mt_enable_uart();
+		printk_disable_uart = 0;
 		pr_err("need uart log\n");
 	}
 	if (ret < 0)
