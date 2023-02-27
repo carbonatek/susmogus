@@ -113,11 +113,8 @@ void log_boot(char *str)
 extern void mt_disable_uart(void);
 static void bootup_finish(void)
 {
-	// mt_disable_uart is essentially printk_disable_uart = 1, but obfuscated.
-	// I am assuming that mt_need_uart_console is set to 0, otherwise, it might
-	// bite me in the ass.
-	// mt_disable_uart();
-	mt_disable_uart;
+	int mt_need_uart_console = 0;
+	mt_disable_uart();
 }
 #else
 static void bootup_finish(void)
