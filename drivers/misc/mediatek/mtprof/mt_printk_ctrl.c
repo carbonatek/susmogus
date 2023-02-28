@@ -14,7 +14,6 @@
 #include <linux/aee.h>
 #include <linux/stacktrace.h>
 
-#include "../../../../kernel/printk.c"
 #include <linux/printk.h>
 
 /* Some utility macro*/
@@ -77,8 +76,8 @@ static unsigned long nsec_low(unsigned long long nsec)
 /* --------------------------------------------------- */
 MT_DEBUG_ENTRY(printk_ctrl);
 int mt_need_uart_console = 0;
-extern void mt_enable_uart(void);	/* printk.c */
-extern void mt_disable_uart(void);	/* printk.c */
+void mt_enable_uart(void);	/* printk.c */
+void mt_disable_uart(void);	/* printk.c */
 extern bool printk_disable_uart;
 static int mt_printk_ctrl_show(struct seq_file *m, void *v)
 {

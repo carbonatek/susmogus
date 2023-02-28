@@ -6,7 +6,8 @@
 #include <linux/module.h>
 #include <linux/moduleparam.h>
 #include <asm/uaccess.h>
-#include "../../../../kernel/printk.c"
+
+#include <linux/printk.h>
 
 #define SEQ_printf(m, x...)	    \
  do {			    \
@@ -109,7 +110,7 @@ void log_boot(char *str)
 }
 
 #ifdef CONFIG_MT_PRINTK_UART_CONSOLE
-extern void mt_disable_uart(void);
+void mt_disable_uart(void);
 static void bootup_finish(void)
 {
 	mt_disable_uart();
