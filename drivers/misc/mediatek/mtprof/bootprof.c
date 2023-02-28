@@ -110,7 +110,7 @@ void log_boot(char *str)
 }
 
 #ifdef CONFIG_MT_PRINTK_UART_CONSOLE
-extern void mt_disable_uart(void);
+extern void mt_disable_uart();
 static void bootup_finish(void)
 {
 	mt_disable_uart();
