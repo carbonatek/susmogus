@@ -16,7 +16,7 @@
 
 #include <linux/printk.h>
 
-#include <stdarg.h>
+#include <linux/types.h>
 
 /* Some utility macro*/
 #define SEQ_printf(m, x...)	    \
