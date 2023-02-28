@@ -9,8 +9,6 @@
 
 #include <linux/printk.h>
 
-#include <linux/types.h>
-
 #define SEQ_printf(m, x...)	    \
  do {			    \
     if (m)		    \
@@ -112,7 +110,6 @@ void log_boot(char *str)
 }
 
 #ifdef CONFIG_MT_PRINTK_UART_CONSOLE
-int mt_need_uart_console = 0;
 extern void mt_disable_uart(void);
 static void bootup_finish(void)
 {

@@ -77,6 +77,7 @@ static unsigned long nsec_low(unsigned long long nsec)
 /*                     Define Proc entry               */
 /* --------------------------------------------------- */
 MT_DEBUG_ENTRY(printk_ctrl);
+int mt_need_uart_console = 0;
 extern void mt_enable_uart(void);	/* printk.c */
 extern void mt_disable_uart(void);	/* printk.c */
 extern bool printk_disable_uart;
@@ -104,10 +105,9 @@ static ssize_t mt_printk_ctrl_write(struct file *filp, const char *ubuf, ssize_t
 
 	ret = strict_strtoul(buf, 10, (unsigned long *)&val);
 	if (val == 0) {
-		int mt_need_uart_console = 0;
 		mt_disable_uart();
 	} else if (val == 1) {
-		int mt_need_uart_console = 1;
+		mt_need_uart_console = 1;
 		mt_enable_uart();
 		pr_err("need uart log\n");
 	}
@@ -120,7 +120,7 @@ static ssize_t mt_printk_ctrl_write(struct file *filp, const char *ubuf, ssize_t
 static int __init init_mt_printk_ctrl(void)
 {
 	struct proc_dir_entry *pe;
-	int mt_need_uart_console = 0;	/* defualt, no uart */
+	mt_need_uart_console = 0;	/* defualt, no uart */
 	pe = proc_create("mtprintk", 0664, NULL, &mt_printk_ctrl_fops);
 	if (!pe)
 		return -ENOMEM;
