@@ -77,7 +77,6 @@ static unsigned long nsec_low(unsigned long long nsec)
 /*                     Define Proc entry               */
 /* --------------------------------------------------- */
 MT_DEBUG_ENTRY(printk_ctrl);
-int mt_need_uart_console = 0;
 extern void mt_enable_uart(void);	/* printk.c */
 extern void mt_disable_uart(void);	/* printk.c */
 extern bool printk_disable_uart;
