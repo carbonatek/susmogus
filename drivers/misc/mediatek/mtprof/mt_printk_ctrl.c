@@ -14,7 +14,7 @@
 #include <linux/aee.h>
 #include <linux/stacktrace.h>
 
-#include "kernel/printk.c"
+#include <kernel/printk.c>
 #include <linux/printk.h>
 
 /* Some utility macro*/

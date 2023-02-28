@@ -6,7 +6,7 @@
 #include <linux/module.h>
 #include <linux/moduleparam.h>
 #include <asm/uaccess.h>
-#include "kernel/printk.c"
+#include <kernel/printk.c>
 
 #define SEQ_printf(m, x...)	    \
  do {			    \
