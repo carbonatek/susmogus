@@ -110,7 +110,27 @@ void log_boot(char *str)
 }
 
 #ifdef CONFIG_MT_PRINTK_UART_CONSOLE
-extern void mt_disable_uart();
+extern int mt_need_uart_console;
+inline void mt_disable_uart()
+{
+    if (mt_need_uart_console == 0) {
+        printk("<< printk console disable >>\n");
+        printk_disable_uart = 1;
+    } else {
+        printk("<< printk console can't be disabled >>\n");
+    }
+}
+inline void mt_enable_uart()
+{
+    if (mt_need_uart_console == 1) {
+        if (printk_disable_uart == 0)
+            return;
+        printk_disable_uart = 0;
+        printk("<< printk console enable >>\n");
+    } else {
+        printk("<< printk console can't be enabled >>\n");
+    }
+}
 static void bootup_finish(void)
 {
 	mt_disable_uart();
