@@ -272,31 +272,6 @@ static char __log_buf[__LOG_BUF_LEN] __aligned(LOG_ALIGN);
 static char *log_buf = __log_buf;
 static u32 log_buf_len = __LOG_BUF_LEN;
 
-#ifdef CONFIG_MT_PRINTK_UART_CONSOLE
-
-extern int mt_need_uart_console;
-inline void mt_disable_uart()
-{
-    if (mt_need_uart_console == 0) {
-        printk("<< printk console disable >>\n");
-        printk_disable_uart = 1;
-    } else {
-        printk("<< printk console can't be disabled >>\n");
-    }
-}
-inline void mt_enable_uart()
-{
-    if (mt_need_uart_console == 1) {
-        if (printk_disable_uart == 0)
-            return;
-        printk_disable_uart = 0;
-        printk("<< printk console enable >>\n");
-    } else {
-        printk("<< printk console can't be enabled >>\n");
-    }
-}
-
-#endif
 /* cpu currently holding logbuf_lock */
 static volatile unsigned int logbuf_cpu = UINT_MAX;
 
