@@ -78,9 +78,28 @@ static unsigned long nsec_low(unsigned long long nsec)
 /* --------------------------------------------------- */
 MT_DEBUG_ENTRY(printk_ctrl);
 int mt_need_uart_console = 0;
-extern void mt_enable_uart();	/* printk.c */
-extern void mt_disable_uart();	/* printk.c */
+extern int mt_need_uart_console;
 extern bool printk_disable_uart;
+inline void mt_disable_uart()
+{
+    if (mt_need_uart_console == 0) {
+        printk("<< printk console disable >>\n");
+        printk_disable_uart = 1;
+    } else {
+        printk("<< printk console can't be disabled >>\n");
+    }
+}
+inline void mt_enable_uart()
+{
+    if (mt_need_uart_console == 1) {
+        if (printk_disable_uart == 0)
+            return;
+        printk_disable_uart = 0;
+        printk("<< printk console enable >>\n");
+    } else {
+        printk("<< printk console can't be enabled >>\n");
+    }
+}
 static int mt_printk_ctrl_show(struct seq_file *m, void *v)
 {
 	SEQ_printf(m, "=== mt printk controller ===\n");
